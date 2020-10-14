@@ -16,8 +16,9 @@ trait ResourceTrait
         $this->authorize('admin');
 
         $this->data['fields'] = $this->model::getFields();
-        $this->data['rows'] = $this->model::orderBy('setores_id', 'asc')->get();
-        return view($this->data['url'].'.index')->with('data', (object) $this->data);
+        $this->data['rows'] = $this->model::get();
+        #return view($this->data['url'] . '.index')->with('data', (object) $this->data);
+        return view('crud')->with('data', (object) $this->data);
     }
 
     /**
@@ -27,7 +28,10 @@ trait ResourceTrait
      */
     public function create()
     {
-        //return view('users.create');
+        $this->data['fields'] = $this->model::getFields();
+
+        return view($this->data['url'] . '.create')
+            ->with('data', (object) $this->data);
     }
 
     /**
@@ -57,10 +61,12 @@ trait ResourceTrait
     {
         $this->authorize('admin');
 
-        if ($request->parent) {
-            return $this->model::with('setores')->find($id);
-        } else {
+        if ($request->ajax()) {
             return $this->model::find($id);
+        } else {
+            $this->data['row'] = $this->model::find($id);
+            return view($this->data['url'] . '.show')
+                ->with('data', (object) $this->data);
         }
     }
 
@@ -72,7 +78,7 @@ trait ResourceTrait
      */
     public function edit($id)
     {
-        //
+        echo 'edit ' . $id;
     }
 
     /**
@@ -85,14 +91,18 @@ trait ResourceTrait
     public function update(Request $request, $id)
     {
         $this->authorize('admin');
-        $request->validate($this->model::rules);
+
+        if (defined($this->model . '::rules')) {
+            $request->validate($this->model::rules);
+        }
 
         $setor = $this->model::find($id);
         $setor->fill($request->all());
         $setor->save();
 
-        $request->session()->flash('alert-info', 'Dados editads com sucesso');
-        return redirect('/' . $this->data['url']);
+        $request->session()->flash('alert-info', 'Dados editados com sucesso');
+        return back();
+        //return redirect('/' . $this->data['url']);
     }
 
     /**
@@ -105,7 +115,6 @@ trait ResourceTrait
     {
         $this->authorize('admin');
         $setor = $this->model::find($id);
-        $sigla = $setor->sigla;
         $setor->delete();
         $request->session()->flash('alert-success', 'Dados removidos com sucesso!');
         return redirect('/' . $this->data['url']);

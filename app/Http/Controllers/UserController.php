@@ -2,22 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
-use Uspdev\Replicado\Pessoa;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    use ResourceTrait;
+
+    protected $model = 'App\Models\User';
+
+    protected $data = [
+        'title' => 'Usuários',
+        'url' => 'users', // caminho da rota do resource
+        'showId' => true, // default true
+        'editBtn' => false, // default true
+        'modal' => false, // default false
+    ];
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $users = User::all();
-        return view('users.index')->with('users',$users);
-    }
+    // public function index()
+    // {
+    //     $users = User::all();
+    //     return view('users.index')->with('users', $users);
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -37,12 +53,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = new User;
-        $user->codpes = $request->numero_usp;
-        $user->email = Pessoa::email($request->numero_usp);
-        $user->name = Pessoa::dump($request->numero_usp)['nompesttd'];
-        $user->save ();
-        $request->session()->flash('alert-info','Atendente adicionado com sucesso');
+        User::storeByCodpes($request->numero_usp);
+        $request->session()->flash('alert-info', 'Atendente adicionado com sucesso');
         return redirect('/users');
     }
 
@@ -52,10 +64,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+    // public function show($id)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -63,10 +75,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-        //
-    }
+    // public function edit($id)
+    // {
+    //     //
+    // }
 
     /**
      * Update the specified resource in storage.
@@ -75,10 +87,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+    // public function update(Request $request, $id)
+    // {
+    //     //
+    // }
 
     /**
      * Remove the specified resource from storage.
@@ -86,9 +98,50 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, $id)
     {
-        $user->delete();       
-        return redirect('/users');
+        $user = $this->model::find($id);
+        $user->delete();
+        $request->session()->flash('alert-success', 'Dados removidos com sucesso!');
+        return redirect('/' . $this->data['url']);
+    }
+
+    public function partenome(Request $request)
+    {
+        $this->authorize('admin');
+        if ($request->term) {
+            $pessoas = \Uspdev\Replicado\Pessoa::nomeFonetico($request->term);
+            $pessoas = array_slice($pessoas, 0, 50);
+
+            // formatando para select2
+            $results = [];
+            foreach ($pessoas as $pessoa) {
+                $results[] = [
+                    'text' => $pessoa['codpes'] . ' ' . $pessoa['nompesttd'],
+                    'id' => $pessoa['codpes'],
+                ];
+            }
+            $out['results'] = $results;
+            // limitando a resposta em 50 elementos
+            return response($out);
+        }
+    }
+
+    public function trocarPerfil(Request $request, $perfil)
+    {
+        $this->authorize('trocarPerfil');
+        switch ($perfil) {
+            case 'usuario':
+                session(['is_admin' => 0]);
+                $request->session()->flash('alert-info', 'Perfil mudado para Usuário com sucesso.');
+                break;
+            case 'admin':
+                session(['is_admin' => 1]);
+                $request->session()->flash('alert-info', 'Perfil mudado para Admin com sucesso.');
+                break;
+        }
+        return back();
+        echo $perfil;
+
     }
 }

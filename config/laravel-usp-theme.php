@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title'=> env('APP_NAME'),
+    'title' => env('APP_NAME'),
     'dashboard_url' => config('app.url'),
     'logout_method' => 'POST',
     'logout_url' => 'logout',
@@ -37,35 +37,49 @@ return [
             'url' => 'buscaid',
             'can' => 'atendente',
         ],
-        [
-            'text' => 'Categorias',
-            'url'  => 'categorias',
-            'can'  => 'admin',
-        ],
-        [
-            'text' => 'Usuários',
-            'url' => 'users',
-            'can' => 'admin',
-        ],
     ],
     'right_menu' => [
+        [
+            'text' => '<i class="fas fa-id-badge"></i> Trocar perfil',
+            'can' => 'trocarPerfil',
+            'submenu' => [
+                [
+                    'text' => 'Admin',
+                    'url' => 'users/perfil/admin',
+                    'can' => 'trocarPerfil',
+                ],
+                [
+                    'text' => 'Atendente',
+                    'url' => 'users/perfil/atendente',
+                    'can' => 'trocarPerfil',
+                ], 
+                [
+                    'text' => 'Usuário',
+                    'url' => 'users/perfil/usuario',
+                ],
+            ],
+        ],
         [
             'text' => '<i class="fas fa-cog"></i> Configurações',
             'title' => 'Configurações',
             'can' => 'admin',
             'submenu' => [
                 [
-                    'text' => 'Setores',
+                    'text' => '<i class="fas fa-sitemap"></i> Setores',
                     'url' => 'setores',
                     'can' => 'admin',
                 ],
                 [
-                    'text' => 'Filas',
+                    'text' => '<i class="fas fa-tasks"></i> Filas',
                     'url' => 'filas',
+                    'can' => 'admin',
+                ], 
+                [
+                    'text' => '<i class="fas fa-users"></i> Usuários',
+                    'url' => 'users',
                     'can' => 'admin',
                 ],
             ],
-
         ],
     ],
 ];

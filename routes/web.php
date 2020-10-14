@@ -17,13 +17,24 @@ Route::get('login', [LoginController::class, 'redirectToProvider'])->name('login
 Route::get('callback', [LoginController::class,'handleProviderCallback']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-/**/
-Route::resource('categorias', CategoriaController::class);
-Route::resource('chamados', ChamadoController::class);
-Route::resource('users', UserController::class);
-Route::resource('comentarios/{chamado}/', ComentarioController::class);
+// Admin resources
 Route::resource('setores', SetorController::class);
+
 Route::resource('filas', FilaController::class);
+Route::post('filas/{fila}/pessoas', [FilaController::class,'storePessoa']);
+Route::delete('filas/{fila}/pessoas/{id}', [FilaController::class,'destroyPessoa']);
+
+Route::get('search/partenome', [UserController::class,'partenome']);
+
+Route::resource('users', UserController::class);
+Route::get('users/perfil/{perfil}', [UserController::class, 'trocarPerfil']);
+
+/**/
+Route::get('chamados/create', [ChamadoController::class, 'listaFilas']);
+Route::get('chamados/create/{fila}/', [ChamadoController::class, 'create'])->name('chamados.create');
+Route::post('chamados/create/{fila}/', [ChamadoController::class, 'store'])->name('chamados.store');
+Route::resource('chamados', ChamadoController::class)->except(['create', 'store']);
+Route::resource('comentarios/{chamado}/', ComentarioController::class);
 
 Route::get('atender', [ChamadoController::class, 'atender']);
 Route::get('triagem', [ChamadoController::class,'triagem']);

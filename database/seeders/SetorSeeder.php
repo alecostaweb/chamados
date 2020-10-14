@@ -18,32 +18,57 @@ class SetorSeeder extends Seeder
             [
                 'sigla' => 'UND',
                 'nome' => 'Nome da unidade',
-                'setores_id' => null
+                'setor_id' => null
             ],
             [
                 'sigla' => 'ATFN',
                 'nome' => 'Assistência Financeira',
-                'setores_id' => 1
+                'setor_id' => 1
             ],
             [
                 'sigla' => 'ATAC',
                 'nome' => 'Assistência Acadêmica',
-                'setores_id' => 1
+                'setor_id' => 1
             ],
             [
                 'sigla' => 'ATAD',
                 'nome' => 'Assistência Administrativa',
-                'setores_id' => 1
+                'setor_id' => 1
+            ],
+            [
+                'sigla' => 'STI',
+                'nome' => 'Seção técnica de informática',
+                'setor_id' => 1
+            ],
+            [
+                'sigla' => 'SVBIBL',
+                'nome' => 'Serviço de biblioteca',
+                'setor_id' => 1
+            ],
+            [
+                'sigla' => 'DEPTO1',
+                'nome' => 'Departamento acadêmico 1',
+                'setor_id' => 1
             ],
             [
                 'sigla' => 'SVMANOB',
-                'nome' => 'Swerviço de manutenção e obras',
-                'setores_id' => 4
+                'nome' => 'Serviço de manutenção e obras',
+                'setor_id' => 4
             ],
+            [
+                'sigla' => 'SVCompras',
+                'nome' => 'Serviço de compras',
+                'setor_id' => 2
+            ],
+            [
+                'sigla' => 'SVGRAD',
+                'nome' => 'Serviço de graduação',
+                'setor_id' => 3
+            ],
+
         ];
         foreach ($setores as $setor) {
             Setor::create($setor);
         }
-
     }
 }

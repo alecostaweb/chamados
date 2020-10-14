@@ -13,17 +13,24 @@ class Fila extends Model
         'nome',
         'descricao',
         'template',
-        'setores_id',
+        'setor_id',
     ];
 
-    const rules = array(
-        'nome' => ['required','max:90'],
+    public const rules = [
+        'nome' => ['required', 'max:90'],
         'descricao' => ['max:255'],
         'template' => [],
-        'setores_id' => 'required|numeric',
-    );
+        'setor_id' => 'required|numeric',
+    ];
 
-    const fields = [
+    protected const fields = [
+        [
+            'name' => 'setor_id',
+            'label' => 'Setor',
+            'type' => 'select',
+            'model' => 'Setor',
+            'data' => [],
+        ],
         [
             'name' => 'nome',
             'label' => 'Nome',
@@ -32,29 +39,66 @@ class Fila extends Model
             'name' => 'descricao',
             'label' => 'Descricao',
         ],
-        [
-            'name' => 'setores_id',
-            'model' => 'Setor',
-            'label' => 'Setor',
-            'type' => 'select',
-            'data' => [],
-        ],
+
     ];
 
-    public static function getFields() {
+    public static function getFields()
+    {
         $fields = SELF::fields;
         //return $fields;
         foreach ($fields as &$field) {
-            if (substr($field['name'],-3) == '_id') {
-                $class= '\\App\\Models\\'.$field['model'];
+            if (substr($field['name'], -3) == '_id') {
+                $class = '\\App\\Models\\' . $field['model'];
                 $field['data'] = $class::allToSelect();
             }
         }
         return $fields;
     }
 
-    public function setores()
+    public function getDefaultColumn()
+    {
+        return 'nome';
+    }
+
+    public static function getPessoaModel() {
+        return [
+            [
+                'name' => 'nome',
+                'label' => 'Nome',
+            ],
+            [
+                'name' => 'funcao',
+                'label' => 'Função',
+                'type' => 'select',
+                'options' => ['Gerente','Atendente'],
+                'data' => [],
+            ],
+        ];
+    }
+
+    /**
+     * Relacionamento: fila pertence a setor
+     */
+    public function setor()
     {
         return $this->belongsTo('App\Models\Setor');
+    }
+
+    /**
+     * Relacionamento n:n com user, atributo funcao: Gerente, Atendente
+     */
+    public function users()
+    {
+        return $this->belongsToMany('App\Models\User', 'user_fila')
+            ->withPivot('funcao')->orderBy('user_fila.funcao')->orderBy('users.name')
+            ->withTimestamps();
+    }
+
+    /**
+     * Relacionamento: chamado pertence a fila
+     */
+    public function chamados()
+    {
+        return $this->hasMany(Chamados::class);
     }
 }

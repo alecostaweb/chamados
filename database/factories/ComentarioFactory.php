@@ -2,17 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Models\Categoria;
+use App\Models\Comentario;
+use App\Models\User;
+use App\Models\Chamado;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class CategoriaFactory extends Factory
+class ComentarioFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Categoria::class;
+    protected $model = Comentario::class;
 
     /**
      * Define the model's default state.
@@ -22,7 +24,9 @@ class CategoriaFactory extends Factory
     public function definition()
     {
         return [
-            'nome' => $this->faker->sentence,
+            'comentario' => $this->faker->sentence,
+            'user_id' => User::inRandomOrder()->first()->id,
+            'chamado_id' => Chamado::inRandomOrder()->first()->id,
         ];
     }
 }
