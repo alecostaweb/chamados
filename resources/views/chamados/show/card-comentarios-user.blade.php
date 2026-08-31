@@ -66,9 +66,9 @@
                 var ignoreLink = insideSingleQuotes || array[i].indexOf("'") !== -1;
                 if (!ignoreLink && validURL(array[i])) {
                     if (array[i].search('http://') === -1 && array[i].search('https://') === -1) {
-                        array[i] = "http://" + array[i];
+                        array[i] = "https://" + array[i];
                     }
-                    array[i] = "<a href='" + array[i] + "' target='_blank'>" + array[i] + "</a>"; 
+                    array[i] = "<a href='" + array[i] + "' target='_blank'>" + array[i] + "</a>";
                 }
                 if (hasOddSingleQuotes(array[i])) {
                     insideSingleQuotes = !insideSingleQuotes;
