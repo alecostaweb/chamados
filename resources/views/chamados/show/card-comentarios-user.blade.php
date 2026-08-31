@@ -48,6 +48,12 @@
             '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
         return !!pattern.test(str);
     }
+
+    function hasOddSingleQuotes(str) {
+        var quotes = str.match(/'/g);
+        return quotes !== null && quotes.length % 2 === 1;
+    }
+
     /* Procura palavra por palavra formato de url e converte em tag html */
     $(function() {
         $("#comentario").on("blur", function() {
@@ -55,12 +61,17 @@
             var text1 = text.replace(/(?:\r\n|\r|\n)/g, ' <br> ');
             var array = text1.trim().split(/\s+/);
             var html = '';
+            var insideSingleQuotes = false;
             for (var i = 0; i < array.length; i++) {
-                if (validURL(array[i])) {
+                var ignoreLink = insideSingleQuotes || array[i].indexOf("'") !== -1;
+                if (!ignoreLink && validURL(array[i])) {
                     if (array[i].search('http://') === -1 && array[i].search('https://') === -1) {
                         array[i] = "http://" + array[i];
                     }
                     array[i] = "<a href='" + array[i] + "' target='_blank'>" + array[i] + "</a>"; 
+                }
+                if (hasOddSingleQuotes(array[i])) {
+                    insideSingleQuotes = !insideSingleQuotes;
                 }
                 html += array[i] + " ";
             }
