@@ -19,10 +19,48 @@
         @forelse ($chamado->comentarios->where('tipo','user')->sortByDesc('created_at') as $comentario)
         <div class="">
             <b>{{ $comentario->user->name }}</b> - {{ $comentario->created_at->format('d/m/Y H:i') }}
+            @if ($comentario->foiEditado())
+                <span class="badge badge-secondary" title="Editado em {{ $comentario->updated_at->format('d/m/Y H:i') }}">editado</span>
+            @endif
+            @if ($comentario->podeSerEditadoPor(Auth::user()))
+                <button type="button" class="btn btn-sm btn-light text-primary py-0 ml-1" data-toggle="modal"
+                    data-target="#editarComentarioModal{{ $comentario->id }}" title="Editar comentário">
+                    <i class="far fa-edit"></i>
+                </button>
+            @endif
         </div>
         <div class="ml-2">
-            <p class="card-text" id="comentario">{!! nl2br($comentario->comentario) !!}</p>
+            <p class="card-text">{!! nl2br($comentario->comentario) !!}</p>
         </div>
+        @if ($comentario->podeSerEditadoPor(Auth::user()))
+            <div class="modal fade" id="editarComentarioModal{{ $comentario->id }}" data-backdrop="static" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar comentário</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {{ html()->form('PUT', 'comentarios/' . $comentario->id)->open() }}
+                            @csrf
+                            <div class="form-group">
+                                <textarea class="form-control comentario-linkify" name="comentario" rows="7" required>{{ $comentario->comentario }}</textarea>
+                                <small class="form-text text-muted">
+                                    Aceita tags HTML básicas. URLs são convertidas automaticamente em links, exceto quando estiverem entre aspas simples.
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar</button>
+                            </div>
+                            {{ html()->form()->close() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         <hr />
         @empty
         Não há comentários
@@ -56,7 +94,7 @@
 
     /* Procura palavra por palavra formato de url e converte em tag html */
     $(function() {
-        $("#comentario").on("blur", function() {
+        $("textarea[name='comentario']").on("blur", function() {
             var text = $(this).val();
             var text1 = text.replace(/(?:\r\n|\r|\n)/g, ' <br> ');
             var array = text1.trim().split(/\s+/);
