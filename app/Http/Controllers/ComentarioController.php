@@ -63,7 +63,7 @@ class ComentarioController extends Controller
 
     public function update(Request $request, Comentario $comentario)
     {
-        $this->authorize('chamados.view', $comentario->chamado);
+        $this->authorize('chamados.update', $comentario->chamado);
 
         if (!$comentario->podeSerEditadoPor(\Auth::user())) {
             abort(403);
